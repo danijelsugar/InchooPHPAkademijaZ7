@@ -6,6 +6,7 @@
         <?php else: ?>
             <a href="<?php echo App::config("url")."admin/logout" ?>">Logout
                 <?php echo Session::getInstance()->getUser()->name ?></a>
+            <a href="<?php echo App::config('url') . "admin/profile" ?>">Profile</a>
         <?php endif; ?>
     </div>
 </div>
