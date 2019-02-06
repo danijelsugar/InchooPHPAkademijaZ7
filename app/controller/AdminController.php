@@ -95,7 +95,7 @@ class AdminController
 
     public function authorize()
     {
-//ne dostaju kontrole
+        //ne dostaju kontrole
         $db = Db::connect();
         $statement = $db->prepare("select id, concat(firstname, ' ', lastname) as name, pass from user where email=:email");
         $statement->bindValue('email', Request::post("email"));
@@ -132,14 +132,6 @@ class AdminController
         $this->index();
     }
 
-    public function json()
-    {
-
-        $posts = Post::all();
-       //print_r($posts);
-        echo json_encode($posts);
-    }
-
     public function index()
     {
 
@@ -150,27 +142,12 @@ class AdminController
         ]);
     }
 
-    function bulkinsert()
+    public function profile()
     {
-        $db = Db::connect();
-        for($i=0;$i<1000;$i++){
+        $vieW = new View();
+        $vieW->render('profile', [
 
-            $statement = $db->prepare("insert into post (content,user) values ('DDDD $i',1)");
-            $statement->execute();
-
-            $id = $db->lastInsertId();
-
-            for($j=0;$j<10;$j++){
-
-                $statement = $db->prepare("insert into comment (content,user,post) values ('CCCCC $i',1,$id)");
-                $statement->execute();
-
-
-            }
-
-        }
-
-
+        ]);
     }
 
    
