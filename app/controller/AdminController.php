@@ -97,7 +97,7 @@ class AdminController
     {
         //ne dostaju kontrole
         $db = Db::connect();
-        $statement = $db->prepare("select id, concat(firstname, ' ', lastname) as name, pass from user where email=:email");
+        $statement = $db->prepare("select id, firstname, lastname, email, pass from user where email=:email");
         $statement->bindValue('email', Request::post("email"));
         $statement->execute();
 
@@ -148,6 +148,26 @@ class AdminController
         $vieW->render('profile', [
 
         ]);
+    }
+
+    public function updateUser()
+    {
+
+        $data = $_POST;
+
+        if ($data === false) {
+            header('Location: ' . App::config('url'));
+        } else {
+            $connection = Db::connect();
+            $sql = 'update user set firstname=:firstname, lastname=:lastname, email=:email where id=:id';
+            $stmt = $connection->prepare($sql);
+            $stmt->bindValue(':firstname', $data['firstname']);
+            $stmt->bindValue(':lastname', $data['lastname']);
+            $stmt->bindValue(':email', $data['email']);
+            $stmt->bindValue(':id', $data['id']);
+            $stmt->execute();
+            $this->profile();
+        }
     }
 
    
