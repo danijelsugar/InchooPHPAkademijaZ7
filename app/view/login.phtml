@@ -1,18 +1,22 @@
 
 
 <?php echo $message ?>
+<div class="row">
+    <div class="col-12">
+        <form method="post" action="<?php echo App::config('url') ?>admin/authorize">
 
-<form method="post" action="<?php echo App::config('url') ?>admin/authorize">
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input class="form-control" type="email" name="email" id="email">
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input class="form-control" type="password" name="password" id="password">
+            </div>
 
-    <div class="form-group">
-        <label for="email">Email</label>
-        <input type="email" name="email">
+            <button type="submit" class="btn btn-primary">Authorize</button>
 
-        <label for="password">Password</label>
-        <input type="password" name="password">
-
+        </form>
     </div>
+</div>
 
-    <button type="submit" class="btn btn-primary">Authorize</button>
-
-</form>
