@@ -166,6 +166,9 @@ class AdminController
             $stmt->bindValue(':email', $data['email']);
             $stmt->bindValue(':id', $data['id']);
             $stmt->execute();
+            Session::getInstance()->getUser()->firstname = $data['firstname'];
+            Session::getInstance()->getUser()->lastname = $data['lastname'];
+            Session::getInstance()->getUser()->email = $data['email'];
             $this->profile();
         }
     }
