@@ -14,9 +14,11 @@ class Post
 
     private $comments;
 
+    private $tags;
+
     private $userid;
 
-    public function __construct($id, $content, $user,$date, $likes,$comments,$userid)
+    public function __construct($id, $content, $user,$date, $likes,$comments,$tags, $userid)
     {
         $this->setId($id);
         $this->setContent($content);
@@ -24,6 +26,7 @@ class Post
         $this->setDate($date);
         $this->setLikes($likes);
         $this->setComments($comments);
+        $this->setTags($tags);
         $this->setUserid($userid);
     }
 
@@ -72,7 +75,14 @@ class Post
             $statement->execute();
             $comments = $statement->fetchAll();
 
-            $list[] = new Post($post->id, $post->content, $post->user,$post->date,$post->likes,$comments,0);
+            $statement = $db->prepare('select * from tag where post=:post');
+            $statement->bindValue(':post', $post->id);
+            $statement->execute();
+            $tags = $statement->fetchAll();
+
+            $list[] = new Post($post->id, $post->content, $post->user,$post->date,$post->likes,$comments,$tags, 0);
+
+
 
         }
 
@@ -98,6 +108,12 @@ class Post
         $statement->execute();
         $comments = $statement->fetchAll();
 
-        return new Post($post->id, $post->content, $post->user, $post->date,$post->likes, $comments,$post->userid);
+        $statement = $db->prepare('select * from tag where post=:post');
+        $statement->bindValue(':post', $id);
+        $statement->execute();
+        $tags = $statement->fetchAll();
+
+        return new Post($post->id, $post->content, $post->user, $post->date,$post->likes, $comments, $tags,$post->userid);
     }
+
 }
