@@ -5,7 +5,7 @@
             <a href="<?php echo App::config("url")."admin/registration" ?>">Registration</a>
         <?php else: ?>
             <a href="<?php echo App::config("url")."admin/logout" ?>">Logout
-                <?php echo Session::getInstance()->getUser()->name ?></a>
+                <?php echo  htmlspecialchars(Session::getInstance()->getUser()->firstname) ?></a>
             <a href="<?php echo App::config('url') . "admin/profile" ?>">Profile</a>
         <?php endif; ?>
     </div>
@@ -39,7 +39,11 @@
             <?php echo $post->date ?>
             <a href="<?php echo App::config('url') ?>Index/view/<?= $post->getId() ?> ">
                 <?= htmlspecialchars($post->getContent()) ?> </a> <br />
-
+            <p>
+                <?php foreach ($post->getTags() as $tag): ?>
+                    <small><?php echo $tag->name; ?></small>
+                <?php endforeach; ?>
+            </p>
             <?php if( Session::getInstance()->isLoggedIn() ): ?>
                 <a href="<?php echo App::config('url') ?>admin/like/<?php echo $post->id ?>">Like</a>
             <?php endif; ?>

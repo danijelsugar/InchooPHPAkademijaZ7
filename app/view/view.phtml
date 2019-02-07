@@ -12,7 +12,13 @@
     </div>
     <div class="col-12">
         <cite><?= htmlspecialchars($post->getUser()) ?></cite>  <?php echo $post->date ?>
-        <p><?= htmlspecialchars($post->getContent()) ?></p> Likes: <?php echo $post->getLikes() ?>
+        <p><?= htmlspecialchars($post->getContent()) ?>
+        <p>
+            <?php foreach ($post->getTags() as $tag): ?>
+                <small><?= htmlspecialchars($tag->name) ?></small>
+            <?php endforeach; ?>
+        </p>
+        </p> Likes: <?php echo $post->getLikes() ?>
     </div>
     <div class="col-12">
         <h3>Comments</h3>
