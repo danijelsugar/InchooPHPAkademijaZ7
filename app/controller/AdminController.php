@@ -153,25 +153,56 @@ class AdminController
     public function updateUser()
     {
 
-        $data = $_POST;
+        $firstName = trim($_POST['firstname']);
+        $lastName = trim($_POST['lastname']);
+        $email = trim($_POST['email']);
 
-        if ($data === false) {
-            header('Location: ' . App::config('url'));
+        if ($firstName === '' || $lastName === '' || $email === '') {
+            $valid = false;
+            $message = 'Obavezan unos';
         } else {
+            $valid = true;
+            $message = 'Uspiješna promjena';
+        }
+
+        if ($valid) {
             $connection = Db::connect();
             $sql = 'update user set firstname=:firstname, lastname=:lastname, email=:email where id=:id';
             $stmt = $connection->prepare($sql);
-            $stmt->bindValue(':firstname', $data['firstname']);
-            $stmt->bindValue(':lastname', $data['lastname']);
-            $stmt->bindValue(':email', $data['email']);
-            $stmt->bindValue(':id', $data['id']);
+            $stmt->bindValue(':firstname', $firstName);
+            $stmt->bindValue(':lastname', $lastName);
+            $stmt->bindValue(':email', $email);
+            $stmt->bindValue(':id', $_POST['id']);
             $stmt->execute();
-            Session::getInstance()->getUser()->firstname = $data['firstname'];
-            Session::getInstance()->getUser()->lastname = $data['lastname'];
-            Session::getInstance()->getUser()->email = $data['email'];
-            $this->profile();
+            Session::getInstance()->getUser()->firstname = $firstName;
+            Session::getInstance()->getUser()->lastname = $lastName;
+            Session::getInstance()->getUser()->email = $email;
         }
+
+        $view = new View();
+        $view->render('profile', ['message'=>$message]);
+
     }
 
-   
+    public function updatePassword()
+    {
+            $newPass = trim($_POST['newPassword']);
+            $confPass = trim($_POST['confPassword']);
+
+            if($newPass !== '' && $newPass === $confPass ) {
+                $connection = Db::connect();
+                $sql = 'update user set pass=:newpassword where id=:id';
+                $stmt = $connection->prepare($sql);
+                $stmt->bindValue(':newpassword', password_hash($newPass, PASSWORD_DEFAULT));
+                $stmt->bindValue(':id', Session::getInstance()->getUser()->id);
+                $stmt->execute();
+
+                $view = new View();
+                $view->render('profile', ['message'=>'Lozinka uspiješno primjenjena']);
+            } else {
+                $view = new View();
+                $view->render('profile', ['message' => 'Pokušaj ponovo']);
+            }
+    }
+
 }

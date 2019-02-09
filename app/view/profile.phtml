@@ -1,31 +1,56 @@
 <div class="row">
     <div class="col-12">
-        <a href="<?php echo App::config("url") ?>">Index</a><hr />
+        <a href="<?php echo App::config("url") ?>">Index</a>
+        <a href="<?php echo App::config("url") ?>">Change password</a>
+        <hr />
+
     </div>
 </div>
-
 <div class="row">
     <div class="col-4 offset-4">
+        <p class="alert alert-info"><?php echo $message; ?></p>
+    </div>
+</div>
+<div class="row">
+    <div class="col-4 offset-4">
+        <h3>User current info</h3>
         <form action="<?php echo App::config("url") ?>Admin/updateUser/<?php echo Session::getInstance()->getUser()->id ?>"
         method="post" enctype="multipart/form-data">
             <div class="form-group">
                 <label for="firstname">First name</label>
                 <input class="form-control" type="text" name="firstname" id="firstname"
-                value="<?php echo Session::getInstance()->getUser()->firstname ?>" autocomplete="off">
+                value="<?php echo htmlspecialchars(Session::getInstance()->getUser()->firstname) ?>" autocomplete="off">
             </div>
 
             <div class="form-group">
                 <label for="lastname">Last name</label>
                 <input class="form-control" type="text" name="lastname" id="lastname"
-                value="<?php echo Session::getInstance()->getUser()->lastname ?>" autocomplete="off">
+                value="<?php echo htmlspecialchars(Session::getInstance()->getUser()->lastname) ?>" autocomplete="off">
             </div>
 
             <div class="form-group">
                 <label for="email">Email</label>
                 <input class="form-control" type="email" name="email" id="email"
-                value="<?php echo Session::getInstance()->getUser()->email ?>" autocomplete="off">
+                value="<?php echo htmlspecialchars(Session::getInstance()->getUser()->email) ?>" autocomplete="off">
             </div>
             <input type="hidden" name="id" value="<?php echo Session::getInstance()->getUser()->id ?>">
+            <button type="submit" class="btn btn-primary">Change</button>
+        </form>
+    </div>
+</div>
+<div class="row">
+    <div class="col-4 offset-4">
+        <h3>Change password</h3>
+        <form action="<?php echo App::config("url") ?>Admin/updatePassword/<?php echo Session::getInstance()->getUser()->id ?>" 
+        method="post">
+            <div class="form group">
+                <label for="newPassword">New password</label>
+                <input type="password" name="newPassword" id="newPassword">
+            </div>
+            <div class="form-group">
+                <label for="confPassword">Confrim password</label>
+                <input type="password" name="confPassword" id="confPassword">
+            </div>
             <button type="submit" class="btn btn-primary">Change</button>
         </form>
     </div>
