@@ -11,12 +11,22 @@
 </div>
 <div class="row">
     <div class="col-4 offset-4">
-        <p class="alert alert-info"><?php echo (!empty($message)) ? $message : ''; ?></p>
+        <p class="alert alert-info"><?php echo isset($message) ? $message : '' ?></p>
     </div>
 </div>
 <div class="row">
     <div class="col-4">
-        <img src="<?php echo App::config("url") ?>uploads/<?php echo $user->getImage() ?>" alt="">
+
+        <?php if ($user->getImage()): ?>
+            <div class="card">
+                <img class="card-img-top" src="<?php echo App::config("url") ?>uploads/<?php echo $user->getImage() ?>" alt="">
+            </div>
+        <?php else: ?>
+        <div class="img-div">
+            <img src="<?php echo App::config('url').'app/view/barcode.php?size=100&text='.$user->getFirstName() .
+                $user->getEmail()?>">
+        </div>
+        <?php endif; ?>
         <form action="<?php echo App::config("url") ?>Admin/updateImage/<?php echo Session::getInstance()->getUser()->id ?>"
         method="post" enctype="multipart/form-data">
             <div class="form-group">
