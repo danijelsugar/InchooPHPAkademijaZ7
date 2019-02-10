@@ -19,7 +19,11 @@
 
                 <div class="form-group">
                     <label for="content">What's on your mind?</label>
-                    <input id="content" name="content">
+                    <input class="form-control" id="content" name="content" autocomplete="off">
+                </div>
+                <div class="form-group">
+                    <label for="tags">Tags</label>
+                    <input type="text" name="tags" id="tags" class="form-control">
                 </div>
 
                 <button type="submit" class="btn btn-primary">Save</button>
@@ -56,9 +60,10 @@
                 <?php echo $comment->date ?><br />
                 <?php echo $comment->content ?>
             </p>
-        <hr />
-        <?php endforeach; ?>
+
+            <?php endforeach; ?>
         </p>
+        <hr />
     </div>
     <?php endforeach; ?>
 </div>
