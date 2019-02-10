@@ -37,8 +37,13 @@ post int not null
 
 create table tag (
 id int not null primary key auto_increment,
-name varchar (100) not null,
-post int not null
+name text not null
+)engine=InnoDB;
+
+create table tagpost(
+id int not null primary key auto_increment,
+post int not null,
+tag int not null
 )engine=InnoDB;
 
 
@@ -50,7 +55,8 @@ alter table comment add FOREIGN KEY (post) REFERENCES post(id);
 alter table likes add FOREIGN KEY (user) REFERENCES user(id);
 alter table likes add FOREIGN KEY (post) REFERENCES post(id);
 
-alter table tag add FOREIGN KEY (post) REFERENCES post(id);
+alter table tagpost add FOREIGN KEY (post) REFERENCES post(id);
+alter table tagpost add FOREIGN  KEY (tag) REFERENCES tag(id);
 
 
 insert into user (id,firstname,lastname,email,pass) values
@@ -62,5 +68,5 @@ insert into user (firstname,lastname,email,pass) values
 
 insert into post (content,user) values ('Evo danas pada kiša opet :(',1), ('Jedem jagode.',2);
 
-insert into tag (name,post) values ('Vrijeme',1), ('Hrana',2), ('Prognoza', 1);
+
 
