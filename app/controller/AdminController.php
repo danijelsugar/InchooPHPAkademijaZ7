@@ -150,12 +150,55 @@ class AdminController
         ]);
     }
 
-    public function updateUser()
+    public function updateImage()
     {
 
-        $firstName = trim($_POST['firstname']);
-        $lastName = trim($_POST['lastname']);
-        $email = trim($_POST['email']);
+            $targetDir = BP . 'uploads/';
+            $name = basename($_FILES['image']['name']);
+            $targetFile = $targetDir . $name;
+            $fileType = pathinfo($targetFile, PATHINFO_EXTENSION);
+            $allowedFileTypes=array("jpg", "jpeg");
+
+            $valid = true;
+
+            if (!in_array($fileType, $allowedFileTypes)) {
+                $valid = false;
+                $message = 'Not allowed file type, only jpeg and jpg are allowed';
+
+            }
+
+            if ($_FILES['image']['size'] > 2097152) {
+                $valid = false;
+                $message = 'File size too big';
+
+            }
+
+            if ($valid) {
+                move_uploaded_file($_FILES["image"]["tmp_name"], $targetFile);
+
+                $connection = Db::connect();
+                $sql = 'update user set image=:image where id=:id';
+                $stmt = $connection->prepare($sql);
+                $stmt->bindValue(':image', $name);
+                $stmt->bindValue(':id', Session::getInstance()->getUser()->id);
+                $stmt->execute();
+
+                Session::getInstance()->getUser()->image = $name;
+            }
+
+            $view = new View();
+            $view->render('profile', []);
+
+
+    }
+
+    public function updateUser()
+    {
+        $data = $_POST;
+        $firstName = trim($data['firstname']);
+        $lastName = trim($data['lastname']);
+        $email = trim($data['email']);
+
 
         if ($firstName === '' || $lastName === '' || $email === '') {
             $valid = false;
@@ -177,6 +220,8 @@ class AdminController
             Session::getInstance()->getUser()->firstname = $firstName;
             Session::getInstance()->getUser()->lastname = $lastName;
             Session::getInstance()->getUser()->email = $email;
+
+
         }
 
         $view = new View();
