@@ -24,6 +24,7 @@ class IndexController
     public function newPost()
     {
         $data = $this->_validate($_POST);
+        $tags = $data['tags'];
 
         if ($data === false) {
             header('Location: ' . App::config('url'));
@@ -34,8 +35,31 @@ class IndexController
             $stmt->bindValue('content', $data['content']);
             $stmt->bindValue('user', Session::getInstance()->getUser()->id);
             $stmt->execute();
+            $lastPost = $connection->lastInsertId();
+
+            $tags = explode(',', $tags);
+
+            foreach ($tags as $tag) {
+                trim($tag);
+                $sql = 'insert into tag (name) values(:name)';
+                $stmt = $connection->prepare($sql);
+                $stmt->bindValue(':name', $tag);
+                $stmt->execute();
+                $lastTag = $connection->lastInsertId();
+
+                $sql = 'insert into tagpost (post,tag) values(:post,:tag)';
+                $stmt = $connection->prepare($sql);
+                $stmt->bindValue(':post', $lastPost);
+                $stmt->bindValue(':tag', $lastTag);
+                $stmt->execute();
+            }
+
+
             header('Location: ' . App::config('url'));
+
         }
+
+
     }
 
     /**
