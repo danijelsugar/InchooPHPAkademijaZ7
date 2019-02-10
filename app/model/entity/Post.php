@@ -75,10 +75,11 @@ class Post
             $statement->execute();
             $comments = $statement->fetchAll();
 
-            $statement = $db->prepare('select * from tag where post=:post');
-            $statement->bindValue(':post', $post->id);
+            $statement = $db->prepare('select a.post, b.name from tagpost a inner join tag b on a.tag=b.id where a.post=:id');
+            $statement->bindValue('id', $post->id);
             $statement->execute();
             $tags = $statement->fetchAll();
+
 
             $list[] = new Post($post->id, $post->content, $post->user,$post->date,$post->likes,$comments,$tags, 0);
 
@@ -108,12 +109,14 @@ class Post
         $statement->execute();
         $comments = $statement->fetchAll();
 
-        $statement = $db->prepare('select * from tag where post=:post');
-        $statement->bindValue(':post', $id);
+        $statement = $db->prepare('select a.post, b.name from tagpost a inner join tag b on a.tag=b.id where a.post=:id');
+        $statement->bindValue('id', $post->id);
         $statement->execute();
         $tags = $statement->fetchAll();
 
-        return new Post($post->id, $post->content, $post->user, $post->date,$post->likes, $comments, $tags,$post->userid);
+
+
+        return new Post($post->id, $post->content, $post->user, $post->date,$post->likes, $comments,$tags, $post->userid);
     }
 
 }
