@@ -16,9 +16,11 @@ class Post
 
     private $tags;
 
+    private $reports;
+
     private $userid;
 
-    public function __construct($id, $content, $user,$date, $likes,$comments,$tags, $userid)
+    public function __construct($id, $content, $user,$date, $likes,$comments,$tags, $reports, $userid)
     {
         $this->setId($id);
         $this->setContent($content);
@@ -27,6 +29,7 @@ class Post
         $this->setLikes($likes);
         $this->setComments($comments);
         $this->setTags($tags);
+        $this->setReports($reports);
         $this->setUserid($userid);
     }
 
@@ -80,8 +83,13 @@ class Post
             $statement->execute();
             $tags = $statement->fetchAll();
 
+            $statement = $db->prepare('select count(postid) from report where postid=:id');
+            $statement->bindValue(':id', $post->id);
+            $statement->execute();
+            $reports = $statement->fetchColumn();
 
-            $list[] = new Post($post->id, $post->content, $post->user,$post->date,$post->likes,$comments,$tags, 0);
+
+            $list[] = new Post($post->id, $post->content, $post->user,$post->date,$post->likes,$comments,$tags,$reports, 0);
 
 
 
@@ -114,9 +122,14 @@ class Post
         $statement->execute();
         $tags = $statement->fetchAll();
 
+        $statement = $db->prepare('select count(postid) from report where postid=:id');
+        $statement->bindValue(':id', $post->id);
+        $statement->execute();
+        $reports = $statement->fetchColumn();
 
 
-        return new Post($post->id, $post->content, $post->user, $post->date,$post->likes, $comments,$tags, $post->userid);
+
+        return new Post($post->id, $post->content, $post->user, $post->date,$post->likes, $comments,$tags, $reports, $post->userid);
     }
 
 }

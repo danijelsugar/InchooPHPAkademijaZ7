@@ -18,7 +18,8 @@ create table post(
 id int not null primary key auto_increment,
 content text,
 user int not null,
-date datetime not null default now()
+date datetime not null default now(),
+hidden boolean default false
 )engine=InnoDB;
 
 create table comment(
@@ -46,6 +47,12 @@ post int not null,
 tag int not null
 )engine=InnoDB;
 
+create table report(
+id int not null primary key auto_increment,
+userid int not null,
+postid int not null
+)engine=InnoDB;
+
 
 alter table post add FOREIGN KEY (user) REFERENCES user(id);
 
@@ -57,6 +64,10 @@ alter table likes add FOREIGN KEY (post) REFERENCES post(id);
 
 alter table tagpost add FOREIGN KEY (post) REFERENCES post(id);
 alter table tagpost add FOREIGN  KEY (tag) REFERENCES tag(id);
+
+alter table report add FOREIGN KEY (postid) REFERENCES post(id);
+alter table report add FOREIGN KEY (userid) REFERENCES user(id);
+
 
 
 insert into user (id,firstname,lastname,email,pass) values

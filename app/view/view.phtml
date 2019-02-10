@@ -18,7 +18,13 @@
                 <small><?= htmlspecialchars($tag->name) ?></small>
             <?php endforeach; ?>
         </p>
-        </p> Likes: <?php echo $post->getLikes() ?>
+
+        </p>
+        <span>
+            Reports: <?php echo $post->getReports() ?> ||
+            Likes: <?php echo $post->getLikes() ?>
+        </span>
+
     </div>
     <div class="col-12">
         <h3>Comments</h3>
@@ -28,10 +34,11 @@
 <div class="row">
     <?php foreach ($post->getComments() as $comment): ?>
     <div class="col-12">
+
         <p>
             <cite><?= htmlspecialchars($comment->user) ?></cite>
-            <?php echo $comment->date ?><br />
-            <?php echo $comment->content ?>
+            <?php echo htmlspecialchars($comment->date) ?><br />
+            <?php echo htmlspecialchars($comment->content) ?>
         </p>
     </div>
 
@@ -46,7 +53,7 @@
 
             <div class="form-group">
                 <label for="content">New comment</label>
-                <input id="content" name="content">
+                <input class="form-control" id="content" name="content">
             </div>
 
             <button type="submit" class="btn btn-primary">Save</button>

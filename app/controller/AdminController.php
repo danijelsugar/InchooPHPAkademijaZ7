@@ -250,4 +250,18 @@ class AdminController
             }
     }
 
+    public function reportPost($post)
+    {
+
+        $db = Db::connect();
+        $statement = $db->prepare("insert into report (userid,postid) values (:userid,:postid)");
+        $statement->bindValue('postid', $post);
+        $statement->bindValue('userid', Session::getInstance()->getUser()->id);
+        $statement->execute();
+
+        $this->index();
+
+    }
+
+
 }
