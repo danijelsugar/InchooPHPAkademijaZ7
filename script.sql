@@ -35,7 +35,7 @@ create table likes(
 id int not null primary key auto_increment,
 user int not null,
 post int not null,
-uniquelikes varchar(100) not null
+uniquelikes varchar(50)
 )engine=InnoDB;
 
 create unique index unique_likes on likes(uniquelikes);
@@ -54,8 +54,11 @@ tag int not null
 create table report(
 id int not null primary key auto_increment,
 userid int not null,
-postid int not null
+postid int not null,
+uniquereport varchar(50)
 )engine=InnoDB;
+
+create unique index unique_reports on report(uniquereport);
 
 create table reportcomment(
 id int not null primary key auto_increment,
