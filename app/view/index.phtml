@@ -45,51 +45,60 @@ if (Session::getInstance()->isLoggedIn()) {
 
 <div class="row">
     <?php foreach ($posts as $post): ?>
-    <div class="col-12">
-        <?php if ($post->getReports() >= 5): ?>
-            <p>Post uklonjen.</p>
-        <hr />
-        <?php else: ?>
-            <?php if (!$post->hidden && Session::getInstance()->isLoggedIn() && $user->getRole() === 'admin'): ?>
-                <a href="<?php echo App::config('url') ?>Admin/hide/<?php echo $post->id ?>">Ukloni</a>
-            <?php endif; ?>
-            <?php if ($post->hidden): ?>
-                <p>Post skriven</p>
-            <?php else: ?>
-                <p>
+        <div class="col-12">
 
-                    <cite><?= htmlspecialchars($post->getUser()) ?></cite>
-                    <?php echo $post->date ?>
-                    <a href="<?php echo App::config('url') ?>Index/view/<?= $post->getId() ?> ">
-                        <?= htmlspecialchars($post->getContent()) ?> </a> <br />
+            <?php if ($post->getReports() >= 5): ?>
+                <p>Post uklonjen.</p>
+            <hr />
+            <?php else: ?>
+
+                <?php if (!$post->hidden && Session::getInstance()->isLoggedIn() && $user->getRole() === 'admin'): ?>
+                    <a href="<?php echo App::config('url') ?>Admin/hide/<?php echo $post->id ?>">Ukloni</a>
+                <?php endif; ?>
+
+                <?php if ( $post->hidden && Session::getInstance()->isLoggedIn() &&
+                    Session::getInstance()->getUser()->id === $post->getUserid() ): ?>
+                        <p><a href="<?php echo App::config('url') ?>Index/view/<?= $post->getId() ?>">Admin uklonio post</a></p>
+                <?php elseif ($post->hidden && Session::getInstance()->isLoggedIn()): ?>
+                    <p>Admin uklonio post</p>
+                <?php elseif ($post->hidden && !Session::getInstance()->isLoggedIn()): ?>
+                    <p>Admin uklonio post</p>
+                <?php else: ?>
                     <p>
-                        <?php foreach ($post->getTags() as $tag): ?>
-                            <small><?php echo $tag->name; ?></small>
+                        <cite><?= htmlspecialchars($post->getUser()) ?></cite>
+                        <?php echo $post->date ?>
+                        <a href="<?php echo App::config('url') ?>Index/view/<?= $post->getId() ?> ">
+                            <?= htmlspecialchars($post->getContent()) ?> </a> <br />
+                        <p>
+                            <?php foreach ($post->getTags() as $tag): ?>
+                                <small><?php echo $tag->name; ?></small>
+                            <?php endforeach; ?>
+                        </p>
+                        <?php if( Session::getInstance()->isLoggedIn() ): ?>
+                            <a href="<?php echo App::config('url') ?>Admin/like/<?php echo $post->id ?>">Like</a>
+                        <?php endif; ?>
+
+                        (<?php echo $post->getLikes() ?> likes)<br>
+                        <?php if(Session::getInstance()->isLoggedIn() && Session::getInstance()->getUser()->id != $post->getUserid() ): ?>
+
+                            <a href="<?php echo App::config('url') ?>Admin/reportPost/<?php echo $post->id ?>">Report</a>
+                        <?php endif; ?>
+                        (<?php echo $post->getReports() ?> reports)<br>
+
+                        <?php foreach ($post->getComments() as $comment): ?>
+                            <p style="margin-left: 20px;">
+                                <cite><?= htmlspecialchars($comment->user) ?></cite>
+                                <?php echo $comment->date ?><br />
+                                <?php echo $comment->content ?>
+                            </p>
                         <?php endforeach; ?>
                     </p>
-                    <?php if( Session::getInstance()->isLoggedIn() ): ?>
-                        <a href="<?php echo App::config('url') ?>Admin/like/<?php echo $post->id ?>">Like</a>
-                    <?php endif; ?>
+                    <hr />
+                <?php endif; ?>
 
-                    (<?php echo $post->getLikes() ?> likes)<br>
-                    <?php if( Session::getInstance()->isLoggedIn() ): ?>
-                        <a href="<?php echo App::config('url') ?>Admin/reportPost/<?php echo $post->id ?>">Report</a>
-                    <?php endif; ?>
-                    (<?php echo $post->getReports() ?> reports)<br>
-
-                    <?php foreach ($post->getComments() as $comment): ?>
-                    <p style="margin-left: 20px;">
-                        <cite><?= htmlspecialchars($comment->user) ?></cite>
-                        <?php echo $comment->date ?><br />
-                        <?php echo $comment->content ?>
-                    </p>
-
-                    <?php endforeach; ?>
-                </p>
-                <hr />
             <?php endif; ?>
-        <?php endif; ?>
-    </div>
+
+        </div>
     <?php endforeach; ?>
 </div>
 

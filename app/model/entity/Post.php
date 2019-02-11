@@ -65,7 +65,7 @@ class Post
         $list = [];
         $db = Db::connect();
         $statement = $db->prepare("select 
-        a.id, a.content, concat(b.firstname, ' ', b.lastname) as user, a.date, a.hidden,  
+        a.id, a.content, a.user as userid, concat(b.firstname, ' ', b.lastname) as user, a.date, a.hidden,  
         count(c.id) as likes
         from 
         post a inner join user b on a.user=b.id 
@@ -92,7 +92,7 @@ class Post
             $reports = $statement->fetchColumn();
 
 
-            $list[] = new Post($post->id, $post->content, $post->user,$post->date, $post->hidden, $post->likes,$comments,$tags,$reports, 0);
+            $list[] = new Post($post->id, $post->content, $post->user,$post->date, $post->hidden, $post->likes,$comments,$tags,$reports, $post->userid);
 
 
 
