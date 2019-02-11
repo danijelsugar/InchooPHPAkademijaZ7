@@ -10,6 +10,8 @@ class Post
 
     private $date;
 
+    private $hidden;
+
     private $likes;
 
     private $comments;
@@ -20,12 +22,13 @@ class Post
 
     private $userid;
 
-    public function __construct($id, $content, $user,$date, $likes,$comments,$tags, $reports, $userid)
+    public function __construct($id, $content, $user,$date, $hidden, $likes,$comments,$tags, $reports, $userid)
     {
         $this->setId($id);
         $this->setContent($content);
         $this->setUser($user);
         $this->setDate($date);
+        $this->setHidden($hidden);
         $this->setLikes($likes);
         $this->setComments($comments);
         $this->setTags($tags);
@@ -62,13 +65,13 @@ class Post
         $list = [];
         $db = Db::connect();
         $statement = $db->prepare("select 
-        a.id, a.content, concat(b.firstname, ' ', b.lastname) as user, a.date, 
+        a.id, a.content, concat(b.firstname, ' ', b.lastname) as user, a.date, a.hidden,  
         count(c.id) as likes
         from 
         post a inner join user b on a.user=b.id 
         left join likes c on a.id=c.post 
         where a.date > ADDDATE(now(), INTERVAL -7 DAY) 
-        group by a.id, a.content, concat(b.firstname, ' ', b.lastname), a.date 
+        group by a.id, a.content, concat(b.firstname, ' ', b.lastname), a.date, a.hidden 
         order by a.date desc limit 10");
         $statement->execute();
         foreach ($statement->fetchAll() as $post) {
@@ -89,7 +92,7 @@ class Post
             $reports = $statement->fetchColumn();
 
 
-            $list[] = new Post($post->id, $post->content, $post->user,$post->date,$post->likes,$comments,$tags,$reports, 0);
+            $list[] = new Post($post->id, $post->content, $post->user,$post->date, $post->hidden, $post->likes,$comments,$tags,$reports, 0);
 
 
 
@@ -103,7 +106,7 @@ class Post
         $id = intval($id);
         $db = Db::connect();
         $statement = $db->prepare("select 
-        a.id, a.content, concat(b.firstname, ' ', b.lastname) as user, a.date, a.user as userid, count(c.id) as likes
+        a.id, a.content, concat(b.firstname, ' ', b.lastname) as user, a.date, a.hidden, a.user as userid, count(c.id) as likes
         from 
         post a inner join user b on a.user=b.id 
         left join likes c on a.id=c.post 
@@ -129,7 +132,7 @@ class Post
 
 
 
-        return new Post($post->id, $post->content, $post->user, $post->date,$post->likes, $comments,$tags, $reports, $post->userid);
+        return new Post($post->id, $post->content, $post->user, $post->date, $post->hidden, $post->likes, $comments,$tags, $reports, $post->userid);
     }
 
     public static function postLikesList($id)

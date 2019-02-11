@@ -23,12 +23,26 @@ class AdminController
     {
 
         $db = Db::connect();
-        $statement = $db->prepare("insert into user (firstname,lastname,email,pass) values (:firstname,:lastname,:email,:pass)");
+        $statement = $db->prepare("insert into user (firstname,lastname,email,pass,role) values 
+        (:firstname,:lastname,:email,:pass,:role)");
         $statement->bindValue('firstname', Request::post("firstname"));
         $statement->bindValue('lastname', Request::post("lastname"));
         $statement->bindValue('email', Request::post("email"));
         $statement->bindValue('pass', password_hash(Request::post("pass"),PASSWORD_DEFAULT));
+        $statement->bindValue('role', 'admin');
         $statement->execute();
+        $lastId = $db->lastInsertId();
+
+        $statement = $db->prepare('select count(id) from user');
+        $statement->execute();
+        $countID = $statement->fetchColumn();
+
+        if ($countID > 1) {
+            $statement = $db->prepare('update user set role=:role where id=:id');
+            $statement->bindValue(':role', 'user');
+            $statement->bindValue(':id', $lastId);
+            $statement->execute();
+        }
 
         Session::getInstance()->logout();
         $view = new View();
@@ -284,6 +298,19 @@ class AdminController
         $statement->execute();
 
         header('Location: ' . App::config('url') . 'Index/view/' . $comment);
+
+    }
+
+    public function hide($postid)
+    {
+        $postid = intval($postid);
+        $db = Db::connect();
+        $statement = $db->prepare('update post set hidden=:hidden where id=:postid');
+        $statement->bindValue(':hidden', 1);
+        $statement->bindValue(':postid', $postid);
+        $statement->execute();
+
+        header('Location: ' . App::config('url'));
 
     }
 

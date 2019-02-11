@@ -22,7 +22,7 @@
                     <input class="form-control" id="content" name="content" autocomplete="off">
                 </div>
                 <div class="form-group">
-                    <label for="tags">Tags</label>
+                    <label for="tags">Tagovi(u slučaju unosa više tagova odvojiti ih zarezom)</label>
                     <input type="text" name="tags" id="tags" class="form-control">
                 </div>
 
@@ -34,6 +34,14 @@
     </div>
 </div>
 
+<?php
+if (Session::getInstance()->isLoggedIn()) {
+    $id = Session::getInstance()->getUser()->id;
+    $user = User::userData($id);
+}
+
+
+?>
 
 <div class="row">
     <?php foreach ($posts as $post): ?>
@@ -42,36 +50,44 @@
             <p>Post uklonjen.</p>
         <hr />
         <?php else: ?>
-            <p>
-                <cite><?= htmlspecialchars($post->getUser()) ?></cite>
-                <?php echo $post->date ?>
-                <a href="<?php echo App::config('url') ?>Index/view/<?= $post->getId() ?> ">
-                    <?= htmlspecialchars($post->getContent()) ?> </a> <br />
+            <?php if (!$post->hidden && Session::getInstance()->isLoggedIn() && $user->getRole() === 'admin'): ?>
+                <a href="<?php echo App::config('url') ?>Admin/hide/<?php echo $post->id ?>">Ukloni</a>
+            <?php endif; ?>
+            <?php if ($post->hidden): ?>
+                <p>Post skriven</p>
+            <?php else: ?>
                 <p>
-                    <?php foreach ($post->getTags() as $tag): ?>
-                        <small><?php echo $tag->name; ?></small>
+
+                    <cite><?= htmlspecialchars($post->getUser()) ?></cite>
+                    <?php echo $post->date ?>
+                    <a href="<?php echo App::config('url') ?>Index/view/<?= $post->getId() ?> ">
+                        <?= htmlspecialchars($post->getContent()) ?> </a> <br />
+                    <p>
+                        <?php foreach ($post->getTags() as $tag): ?>
+                            <small><?php echo $tag->name; ?></small>
+                        <?php endforeach; ?>
+                    </p>
+                    <?php if( Session::getInstance()->isLoggedIn() ): ?>
+                        <a href="<?php echo App::config('url') ?>Admin/like/<?php echo $post->id ?>">Like</a>
+                    <?php endif; ?>
+
+                    (<?php echo $post->getLikes() ?> likes)<br>
+                    <?php if( Session::getInstance()->isLoggedIn() ): ?>
+                        <a href="<?php echo App::config('url') ?>Admin/reportPost/<?php echo $post->id ?>">Report</a>
+                    <?php endif; ?>
+                    (<?php echo $post->getReports() ?> reports)<br>
+
+                    <?php foreach ($post->getComments() as $comment): ?>
+                    <p style="margin-left: 20px;">
+                        <cite><?= htmlspecialchars($comment->user) ?></cite>
+                        <?php echo $comment->date ?><br />
+                        <?php echo $comment->content ?>
+                    </p>
+
                     <?php endforeach; ?>
                 </p>
-                <?php if( Session::getInstance()->isLoggedIn() ): ?>
-                    <a href="<?php echo App::config('url') ?>Admin/like/<?php echo $post->id ?>">Like</a>
-                <?php endif; ?>
-
-                (<?php echo $post->getLikes() ?> likes)<br>
-                <?php if( Session::getInstance()->isLoggedIn() ): ?>
-                    <a href="<?php echo App::config('url') ?>Admin/reportPost/<?php echo $post->id ?>">Report</a>
-                <?php endif; ?>
-                (<?php echo $post->getReports() ?> reports)<br>
-
-                <?php foreach ($post->getComments() as $comment): ?>
-                <p style="margin-left: 20px;">
-                    <cite><?= htmlspecialchars($comment->user) ?></cite>
-                    <?php echo $comment->date ?><br />
-                    <?php echo $comment->content ?>
-                </p>
-
-                <?php endforeach; ?>
-            </p>
-            <hr />
+                <hr />
+            <?php endif; ?>
         <?php endif; ?>
     </div>
     <?php endforeach; ?>
