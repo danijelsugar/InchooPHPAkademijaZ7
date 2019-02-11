@@ -73,7 +73,8 @@ class AdminController
         $view = new View();
 
         $view->render('view', [
-            "post" => Post::find($post)
+            "post" => Post::find($post),
+            "likes" => Post::postLikesList($post)
         ]);
        
     }
@@ -81,12 +82,21 @@ class AdminController
 
     public function like($post)
     {
+        $id = Session::getInstance()->getUser()->id;
+        $uniqueLikes = $post . '-' . $id;
+        try {
+            $db = Db::connect();
+            $statement = $db->prepare("insert into likes (post,user,uniquelikes) values (:post,:user,:uniquelikes)");
+            $statement->bindValue('post', $post);
+            $statement->bindValue('user', Session::getInstance()->getUser()->id);
+            $statement->bindValue(':uniquelikes', $uniqueLikes);
+            $statement->execute();
+        } catch (PDOException $e) {
+            if ($e->errorInfo[1] == 1062) {
 
-        $db = Db::connect();
-        $statement = $db->prepare("insert into likes (post,user) values (:post,:user)");
-        $statement->bindValue('post', $post);
-        $statement->bindValue('user', Session::getInstance()->getUser()->id);
-        $statement->execute();
+            }
+        }
+
         
         $this->index();
        
@@ -260,6 +270,20 @@ class AdminController
         $statement->execute();
 
         $this->index();
+
+    }
+
+    public function reportComment($comment)
+    {
+
+        $db = Db::connect();
+        $statement = $db->prepare("insert into reportcomment (userid,commentid) values 
+        (:userid,:commentid)");
+        $statement->bindValue('commentid', $comment);
+        $statement->bindValue('userid', Session::getInstance()->getUser()->id);
+        $statement->execute();
+
+        header('Location: ' . App::config('url') . 'Index/view/' . $comment);
 
     }
 

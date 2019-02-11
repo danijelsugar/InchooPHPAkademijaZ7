@@ -14,6 +14,14 @@
         <cite><?= htmlspecialchars($post->getUser()) ?></cite>  <?php echo $post->date ?>
         <p><?= htmlspecialchars($post->getContent()) ?>
         <p>
+            <a data-size="large" class="twitter-share-button" target="_blank" href="http://twitter.com/share?text=<?php echo $post->getContent() ?>&url=<URL>">Share on twitter</a>
+            <div class="fb-share-button" data-href="http://polaznik07mvc.inchoo4u.net/Index/view/1" data-layout="button"
+                 data-size="large" data-mobile-iframe="true">
+                <a target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Fpolaznik07mvc.inchoo4u.net%2FIndex%2Fview%2F1&amp;src=sdkpreparse"
+                   class="fb-xfbml-parse-ignore">Podijeli</a>
+            </div>
+        </p>
+        <p>
             <?php foreach ($post->getTags() as $tag): ?>
                 <small><?= htmlspecialchars($tag->name) ?></small>
             <?php endforeach; ?>
@@ -21,8 +29,11 @@
 
         </p>
         <span>
-            Reports: <?php echo $post->getReports() ?> ||
+            Reports: <?php echo $post->getReports() ?><br />
             Likes: <?php echo $post->getLikes() ?>
+            <?php foreach ($likes as $like): ?>
+                <p style="padding-left: 10px;"><?php echo $like->user; ?></p>
+            <?php endforeach; ?>
         </span>
 
     </div>
@@ -34,7 +45,7 @@
 <div class="row">
     <?php foreach ($post->getComments() as $comment): ?>
     <div class="col-12">
-
+        <a href="<?php echo App::config('url') ?>Admin/reportComment/<?php echo $comment->id ?>">Report</a>
         <p>
             <cite><?= htmlspecialchars($comment->user) ?></cite>
             <?php echo htmlspecialchars($comment->date) ?><br />
@@ -63,3 +74,29 @@
 </div>
 
 <?php endif; ?>
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+        var js, fjs = d.getElementsByTagName(s)[0];
+        if (d.getElementById(id)) return;
+        js = d.createElement(s); js.id = id;
+        js.src = 'https://connect.facebook.net/hr_HR/sdk.js#xfbml=1&version=v3.2&appId=179637878714241&autoLogAppEvents=1';
+        fjs.parentNode.insertBefore(js, fjs);
+    }(document, 'script', 'facebook-jssdk'));</script>
+
+<script>window.twttr = (function(d, s, id) {
+        var js, fjs = d.getElementsByTagName(s)[0],
+            t = window.twttr || {};
+        if (d.getElementById(id)) return t;
+        js = d.createElement(s);
+        js.id = id;
+        js.src = "https://platform.twitter.com/widgets.js";
+        fjs.parentNode.insertBefore(js, fjs);
+
+        t._e = [];
+        t.ready = function(f) {
+            t._e.push(f);
+        };
+
+        return t;
+    }(document, "script", "twitter-wjs"));
+</script>
