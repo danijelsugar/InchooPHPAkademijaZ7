@@ -8,7 +8,8 @@ firstname varchar(50) not null,
 lastname varchar(50) not null,
 email varchar(100) not null,
 pass char(60) not null,
-image varchar(250) null
+image varchar(250) null,
+role varchar(50)
 )engine=InnoDB;
 
 create unique index ix1 on user(email);
@@ -33,8 +34,11 @@ date datetime not null default now()
 create table likes(
 id int not null primary key auto_increment,
 user int not null,
-post int not null
+post int not null,
+uniquelikes varchar(100) not null
 )engine=InnoDB;
+
+create unique index unique_likes on likes(uniquelikes);
 
 create table tag (
 id int not null primary key auto_increment,
@@ -53,6 +57,12 @@ userid int not null,
 postid int not null
 )engine=InnoDB;
 
+create table reportcomment(
+id int not null primary key auto_increment,
+userid int not null,
+commentid int not null
+)engine=InnoDB;
+
 
 alter table post add FOREIGN KEY (user) REFERENCES user(id);
 
@@ -68,16 +78,18 @@ alter table tagpost add FOREIGN  KEY (tag) REFERENCES tag(id);
 alter table report add FOREIGN KEY (postid) REFERENCES post(id);
 alter table report add FOREIGN KEY (userid) REFERENCES user(id);
 
+alter table reportcomment add FOREIGN KEY (commentid) REFERENCES comment(id);
+alter table reportcomment add FOREIGN KEY (userid) REFERENCES user(id);
 
 
-insert into user (id,firstname,lastname,email,pass) values
-(null,'Pero','Perić','pperic@gmail.com','$2y$10$9.r4TBJ3Yd7UeuofhqdJ1uIDc6Y4kAD2QKQN1PYcuIlK3uliASY9m');
 
-insert into user (firstname,lastname,email,pass) values
-('Ana','Ančić','aancic@gmail.com','$2y$10$9.r4TBJ3Yd7UeuofhqdJ1uIDc6Y4kAD2QKQN1PYcuIlK3uliASY9m');
+insert into user (id,firstname,lastname,email,pass,role) values
+(null,'Pero','Perić','pperic@gmail.com','$2y$10$9.r4TBJ3Yd7UeuofhqdJ1uIDc6Y4kAD2QKQN1PYcuIlK3uliASY9m','admin');
 
 
-insert into post (content,user) values ('Evo danas pada kiša opet :(',1), ('Jedem jagode.',2);
+
+
+insert into post (content,user) values ('Evo danas pada kiša opet :(',1), ('Jedem jagode.',1);
 
 
 
