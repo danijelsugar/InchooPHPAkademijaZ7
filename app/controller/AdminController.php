@@ -22,31 +22,48 @@ class AdminController
     public function register()
     {
 
-        $db = Db::connect();
-        $statement = $db->prepare("insert into user (firstname,lastname,email,pass,role) values 
-        (:firstname,:lastname,:email,:pass,:role)");
-        $statement->bindValue('firstname', Request::post("firstname"));
-        $statement->bindValue('lastname', Request::post("lastname"));
-        $statement->bindValue('email', Request::post("email"));
-        $statement->bindValue('pass', password_hash(Request::post("pass"),PASSWORD_DEFAULT));
-        $statement->bindValue('role', 'admin');
-        $statement->execute();
-        $lastId = $db->lastInsertId();
+        $firstName = trim(Request::post('firstname'));
+        $lastName = trim(Request::post('lastname'));
+        $email = trim(Request::post('email'));
+        $pass = trim(Request::post('pass'));
+        $valid = true;
 
-        $statement = $db->prepare('select count(id) from user');
-        $statement->execute();
-        $countID = $statement->fetchColumn();
-
-        if ($countID > 1) {
-            $statement = $db->prepare('update user set role=:role where id=:id');
-            $statement->bindValue(':role', 'user');
-            $statement->bindValue(':id', $lastId);
-            $statement->execute();
+        if ($firstName === '' || $lastName === '' || $email === '' || $pass === '') {
+            $valid = false;
+            $message = 'Obavezan unos svih polja';
         }
 
-        Session::getInstance()->logout();
-        $view = new View();
-        $view->render('login',["message"=>""]);
+        if ($valid) {
+            $db = Db::connect();
+            $statement = $db->prepare("insert into user (firstname,lastname,email,pass,role) values 
+            (:firstname,:lastname,:email,:pass,:role)");
+            $statement->bindValue('firstname', $firstName);
+            $statement->bindValue('lastname', $lastName);
+            $statement->bindValue('email', $email);
+            $statement->bindValue('pass', password_hash($pass,PASSWORD_DEFAULT));
+            $statement->bindValue('role', 'admin');
+            $statement->execute();
+            $lastId = $db->lastInsertId();
+
+            $statement = $db->prepare('select count(id) from user');
+            $statement->execute();
+            $countID = $statement->fetchColumn();
+
+            if ($countID > 1) {
+                $statement = $db->prepare('update user set role=:role where id=:id');
+                $statement->bindValue(':role', 'user');
+                $statement->bindValue(':id', $lastId);
+                $statement->execute();
+            }
+
+            Session::getInstance()->logout();
+            $view = new View();
+            $view->render('login',["message"=>""]);
+        } else {
+            $view = new View();
+            $view->render('registration', ['message' => $message]);
+        }
+
        
     }
 
@@ -119,34 +136,45 @@ class AdminController
 
     public function authorize()
     {
-        //ne dostaju kontrole
-        $db = Db::connect();
-        $statement = $db->prepare("select id, firstname, lastname, email, pass from user where email=:email");
-        $statement->bindValue('email', Request::post("email"));
-        $statement->execute();
+        $email = trim(Request::post("email"));
+        $pass = trim(Request::post("password"));
+        $valid = true;
+
+        if ($email === '' || $pass === '') {
+            $valid = false;
+            $message = 'Obavezan unos svih polja';
+        }
+
+        if ($valid) {
+            $db = Db::connect();
+            $statement = $db->prepare("select id, firstname, lastname, email, pass from user where email=:email");
+            $statement->bindValue('email', Request::post("email"));
+            $statement->execute();
 
 
-        if($statement->rowCount()>0){
-            $user = $statement->fetch();
-            if(password_verify(Request::post("password"), $user->pass)){
-              
-                unset($user->pass);
-                
-                Session::getInstance()->login($user);
+            if($statement->rowCount()>0){
+                $user = $statement->fetch();
+                if(password_verify(Request::post("password"), $user->pass)){
 
-                $this->index();
+                    unset($user->pass);
+
+                    Session::getInstance()->login($user);
+
+                    $this->index();
+                }else{
+                    $view = new View();
+                    $view->render('login',["message"=>"Neispravna kombinacija korisničko ime i lozinka"]);
+                }
             }else{
                 $view = new View();
-                $view->render('login',["message"=>"Neispravna kombinacija korisničko ime i lozinka"]);
+                $view->render('login',["message"=>"Neispravan email"]);
             }
-        }else{
+        } else {
             $view = new View();
-            $view->render('login',["message"=>"Neispravan email"]);
+            $view->render('login', ['message' => $message]);
         }
 
 
-
-       
     }
 
     public function logout()
@@ -182,7 +210,7 @@ class AdminController
             $targetFile = $targetDir . $name;
             $fileType = pathinfo($targetFile, PATHINFO_EXTENSION);
             $allowedFileTypes=array("jpg", "jpeg");
-
+            $message = '';
             $valid = true;
 
             if (!in_array($fileType, $allowedFileTypes)) {
@@ -211,7 +239,9 @@ class AdminController
             }
 
             $view = new View();
-            $view->render('profile', []);
+            $view->render('profile', [
+                'message' => $message
+            ]);
 
 
     }
@@ -276,12 +306,22 @@ class AdminController
 
     public function reportPost($post)
     {
+        $id = Session::getInstance()->getUser()->id;
+        $uniqueReports = $post . '-' . $id;
 
-        $db = Db::connect();
-        $statement = $db->prepare("insert into report (userid,postid) values (:userid,:postid)");
-        $statement->bindValue('postid', $post);
-        $statement->bindValue('userid', Session::getInstance()->getUser()->id);
-        $statement->execute();
+        try {
+            $db = Db::connect();
+            $statement = $db->prepare("insert into report (userid,postid,uniquereport) values (:userid,:postid,:uniquereport)");
+            $statement->bindValue('postid', $post);
+            $statement->bindValue('userid', Session::getInstance()->getUser()->id);
+            $statement->bindValue(':uniquereport', $uniqueReports);
+            $statement->execute();
+        } catch (PDOException $e) {
+            if ($e->errorInfo[1] == 1062) {
+
+            }
+        }
+
 
         $this->index();
 

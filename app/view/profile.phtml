@@ -10,9 +10,11 @@
     </div>
 </div>
 <div class="row">
-    <div class="col-4 offset-4">
-        <p class="alert alert-info"><?php echo isset($message) ? $message : '' ?></p>
-    </div>
+    <?php if (!empty($message)): ?>
+        <div class="col-4 offset-4">
+            <p class="alert alert-info"><?php echo $message?></p>
+        </div>
+    <?php endif; ?>
 </div>
 <div class="row">
     <div class="col-4">
@@ -82,5 +84,5 @@
         </form>
     </div>
 </div>
-<?php
-print_r($_SESSION);
+
+
