@@ -1,3 +1,9 @@
+<?php
+    if (Session::getInstance()->isLoggedIn()) {
+        $id = Session::getInstance()->getUser()->id;
+        $user = User::userData($id);
+    }
+?>
 <div class="row">
     <div class="col-12">
         <a href="<?php echo App::config("url") ?>">Index</a><hr />
@@ -5,40 +11,53 @@
 </div>
 <div class="row">
     <div class="col-12">
-        <?php if( Session::getInstance()->isLoggedIn() &&
-            $post->getUserid()==Session::getInstance()->getUser()->id): ?>
-            <a href="<?php echo App::config("url") ?>admin/delete/<?php echo $post->getId() ?>">Delete posts (and all likes and comments</a><br />
-        <?php endif; ?>
-    </div>
-    <div class="col-12">
-        <cite><?= htmlspecialchars($post->getUser()) ?></cite>  <?php echo $post->date ?>
-        <p><?= htmlspecialchars($post->getContent()) ?>
-
-        <p>
-            <?php if (!$post->hidden): ?>
-                <a data-size="large" class="twitter-share-button" target="_blank" href="http://twitter.com/share?text=<?php echo $post->getContent() ?>&url=<URL>">Share on twitter</a>
-                <div class="fb-share-button" data-href="http://polaznik07mvc.inchoo4u.net/Index/view/1" data-layout="button"
-                     data-size="large" data-mobile-iframe="true">
-                    <a target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Fpolaznik07mvc.inchoo4u.net%2FIndex%2Fview%2F1&amp;src=sdkpreparse"
-                       class="fb-xfbml-parse-ignore">Podijeli</a>
+        <div class="card">
+            <div class="card-body">
+                <div class="col-12">
+                    <?php if( Session::getInstance()->isLoggedIn() &&
+                        $post->getUserid()==Session::getInstance()->getUser()->id): ?>
+                        <a href="<?php echo App::config("url") ?>admin/delete/<?php echo $post->getId() ?>">Delete posts (and all likes and comments</a><br />
+                    <?php endif; ?>
                 </div>
-            <?php endif; ?>
-        </p>
-        <p>
-            <?php foreach ($post->getTags() as $tag): ?>
-                <small><?= htmlspecialchars($tag->name) ?></small>
-            <?php endforeach; ?>
-        </p>
+                <div class="col-12">
+                    <cite><?= htmlspecialchars($post->getUser()) ?></cite>  <?php echo $post->date ?>
+                    <p><?= htmlspecialchars($post->getContent()) ?>
 
-        </p>
-        <span>
-            Reports: <?php echo $post->getReports() ?><br />
-            Likes: <?php echo $post->getLikes() ?>
-            <?php foreach ($likes as $like): ?>
-                <p style="padding-left: 10px;"><?php echo $like->user; ?></p>
-            <?php endforeach; ?>
-        </span>
+                    <p>
+                        <?php if (!$post->hidden): ?>
+                        <a data-size="large" class="twitter-share-button" target="_blank" href="http://twitter.com/share?text=<?php echo $post->getContent() ?>&url=<URL>">Share on twitter</a>
+                    <div class="fb-share-button" data-href="http://polaznik07mvc.inchoo4u.net/Index/view/1" data-layout="button"
+                         data-size="large" data-mobile-iframe="true">
+                        <a target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Fpolaznik07mvc.inchoo4u.net%2FIndex%2Fview%2F1&amp;src=sdkpreparse"
+                           class="fb-xfbml-parse-ignore">Podijeli</a>
+                    </div>
+                <?php endif; ?>
+                    </p>
+                    <p>
+                        <?php foreach ($post->getTags() as $tag): ?>
+                            <small><?= htmlspecialchars($tag->name) ?></small>
+                        <?php endforeach; ?>
+                    </p>
 
+                    </p>
+                    <span>
+                Reports: <?php echo $post->getReports() ?><br />
+                Likes: <?php echo $post->getLikes() ?>
+                        <?php foreach ($likes as $like): ?>
+                            <p style="padding-left: 10px;">
+                                <?php echo $like->user; ?>
+                                <?php if (Session::getInstance()->isLoggedIn() && $user->getRole() === 'admin'): ?>
+                                    <a href="<?php echo App::config('url') ?>Admin/removeLike/<?php echo $like->id ?>">
+                                        <i class="fas fa-times"></i>
+                                    </a>
+                                <?php endif; ?>
+                            </p>
+                        <?php endforeach; ?>
+            </span>
+
+                </div>
+            </div>
+        </div>
     </div>
     <div class="col-12">
         <h3>Comments</h3>
@@ -48,12 +67,16 @@
 <div class="row">
     <?php foreach ($post->getComments() as $comment): ?>
     <div class="col-12">
-        <a href="<?php echo App::config('url') ?>Admin/reportComment/<?php echo $comment->id ?>">Report</a>
-        <p>
-            <cite><?= htmlspecialchars($comment->user) ?></cite>
-            <?php echo htmlspecialchars($comment->date) ?><br />
-            <?php echo htmlspecialchars($comment->content) ?>
-        </p>
+        <div class="card">
+            <div class="card-body">
+                <a href="<?php echo App::config('url') ?>Admin/reportComment/<?php echo $comment->id ?>">Report</a>
+                <p>
+                    <cite><?= htmlspecialchars($comment->user) ?></cite>
+                    <?php echo htmlspecialchars($comment->date) ?><br />
+                    <?php echo htmlspecialchars($comment->content) ?>
+                </p>
+            </div>
+        </div>
     </div>
 
     <?php endforeach; ?>

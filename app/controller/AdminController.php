@@ -329,15 +329,25 @@ class AdminController
 
     public function reportComment($comment)
     {
+        $id = Session::getInstance()->getUser()->id;
+        $uniqueReport = $comment . '-' . $id;
 
-        $db = Db::connect();
-        $statement = $db->prepare("insert into reportcomment (userid,commentid) values 
-        (:userid,:commentid)");
-        $statement->bindValue('commentid', $comment);
-        $statement->bindValue('userid', Session::getInstance()->getUser()->id);
-        $statement->execute();
+        try {
+            $db = Db::connect();
+            $statement = $db->prepare("insert into reportcomment (userid,commentid,uniquereport) values 
+        (:userid,:commentid,:uniquereport)");
+            $statement->bindValue('commentid', $comment);
+            $statement->bindValue('userid', Session::getInstance()->getUser()->id);
+            $statement->bindValue(':uniquereport', $uniqueReport);
+            $statement->execute();
+        } catch (PDOException $e) {
+            if ($e->errorInfo[1] == 1062) {
 
-        header('Location: ' . App::config('url') . 'Index/view/' . $comment);
+            }
+        }
+
+
+        header('Location: ' . App::config('url'));
 
     }
 
@@ -352,6 +362,17 @@ class AdminController
 
         header('Location: ' . App::config('url'));
 
+    }
+
+    public function removeLike($likeid)
+    {
+        $likeid = intval($likeid);
+        $db = Db::connect();
+        $statement = $db->prepare('delete from likes where id=:likeid');
+        $statement->bindValue(':likeid', $likeid);
+        $statement->execute();
+
+        header('Location: ' . App::config('url'));
     }
 
 

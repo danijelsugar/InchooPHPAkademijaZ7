@@ -61,6 +61,14 @@ class Post
 
     public static function all()
     {
+        $page  = (isset($page)) ? (int) $page : 1;
+        $perPage = 10;
+        $start = $perPage * ($page - 1);
+        $total = self::postCount();
+        $totalPages = ceil($total / $perPage);
+
+        $next = $page + 1;
+        $prev = $page - 1;
 
         $list = [];
         $db = Db::connect();
@@ -72,11 +80,18 @@ class Post
         left join likes c on a.id=c.post 
         where a.date > ADDDATE(now(), INTERVAL -7 DAY) 
         group by a.id, a.content, concat(b.firstname, ' ', b.lastname), a.date, a.hidden 
-        order by a.date desc limit 10");
+        order by a.date desc limit 100");
         $statement->execute();
         foreach ($statement->fetchAll() as $post) {
 
-            $statement = $db->prepare("select a.id, a.content, concat(b.firstname, ' ', b.lastname) as user, a.date from comment a inner join user b on a.user=b.id where a.post=:id ");
+            $statement = $db->prepare("select a.id, a.content, concat(b.firstname, ' ', b.lastname) as user, a.date, count(c.commentid) as reports 
+            from comment a 
+            inner join user b 
+            on a.user=b.id 
+            left join reportcomment c 
+            on a.id=c.commentid
+            where a.post=:id
+            group by a.id, a.content, user, a.date ");
             $statement->bindValue('id', $post->id);
             $statement->execute();
             $comments = $statement->fetchAll();
@@ -90,6 +105,9 @@ class Post
             $statement->bindValue(':id', $post->id);
             $statement->execute();
             $reports = $statement->fetchColumn();
+
+
+
 
 
             $list[] = new Post($post->id, $post->content, $post->user,$post->date, $post->hidden, $post->likes,$comments,$tags,$reports, $post->userid);
@@ -151,6 +169,19 @@ class Post
 
         return $likes;
 
+    }
+
+    /**
+     * @return mixed numbers of post for pagination
+     */
+    public static function postCount()
+    {
+        $db = Db::connect();
+        $statement = $db->prepare('select count(id) from post');
+        $statement->execute();
+        $totalPosts = $statement->fetchColumn();
+
+        return $totalPosts;
     }
 
 }
