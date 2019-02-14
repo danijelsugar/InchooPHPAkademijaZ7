@@ -64,12 +64,38 @@
     </div>
 </div>
 
+<?php if( Session::getInstance()->isLoggedIn() ): ?>
+    <div class="row">
+        <div class="col-12">
+            <form method="post" action="<?php echo App::config('url') ?>admin/comment/<?php echo $post->getId() ?>">
+                <?php
+                    $rand=rand();
+                    $_SESSION['rand']=$rand;
+                ?>
+                <div class="form-group">
+                    <label for="content">New comment</label>
+                    <input class="form-control" id="content" name="content">
+                </div>
+                <input type="hidden" value="<?php echo $rand; ?>" name="randcheck" >
+                <input type="submit" name="addcomment" value="Komentiraj">
+
+            </form>
+        </div>
+    </div>
+<?php endif; ?>
+
 <div class="row">
     <?php foreach ($post->getComments() as $comment): ?>
     <div class="col-12">
         <div class="card">
             <div class="card-body">
                 <a href="<?php echo App::config('url') ?>Admin/reportComment/<?php echo $comment->id ?>">Report</a>
+                (<?php echo $comment->reports ?> Reports)
+                <?php if (Session::getInstance()->isLoggedIn() && $user->getRole() === 'admin'): ?>
+                    <p>
+                        <a href="<?php echo App::config('url') ?>Admin/deleteComment/<?php echo $comment->id ?>">Delete</a>
+                    </p>
+                <?php endif; ?>
                 <p>
                     <cite><?= htmlspecialchars($comment->user) ?></cite>
                     <?php echo htmlspecialchars($comment->date) ?><br />
@@ -82,24 +108,6 @@
     <?php endforeach; ?>
 </div>
 
-
-<?php if( Session::getInstance()->isLoggedIn() ): ?>
-<div class="row">
-    <div class="col-12">
-        <form method="post" action="<?php echo App::config('url') ?>admin/comment/<?php echo $post->getId() ?>">
-
-            <div class="form-group">
-                <label for="content">New comment</label>
-                <input class="form-control" id="content" name="content">
-            </div>
-
-            <button type="submit" class="btn btn-primary">Save</button>
-
-        </form>
-    </div>
-</div>
-
-<?php endif; ?>
 <div id="fb-root"></div>
 <script>(function(d, s, id) {
         var js, fjs = d.getElementsByTagName(s)[0];
@@ -126,3 +134,4 @@
         return t;
     }(document, "script", "twitter-wjs"));
 </script>
+
