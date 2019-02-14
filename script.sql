@@ -42,7 +42,7 @@ create unique index unique_likes on likes(uniquelikes);
 
 create table tag (
 id int not null primary key auto_increment,
-name text not null
+name text
 )engine=InnoDB;
 
 create table tagpost(
@@ -63,8 +63,11 @@ create unique index unique_reports on report(uniquereport);
 create table reportcomment(
 id int not null primary key auto_increment,
 userid int not null,
-commentid int not null
+commentid int not null,
+uniquereport varchar(50)
 )engine=InnoDB;
+
+create unique index unique_comm_reports on reportcomment(uniquereport);
 
 
 alter table post add FOREIGN KEY (user) REFERENCES user(id);
