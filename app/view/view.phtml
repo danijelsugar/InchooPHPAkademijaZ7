@@ -74,10 +74,10 @@
                 ?>
                 <div class="form-group">
                     <label for="content">New comment</label>
-                    <input class="form-control" id="content" name="content">
+                    <input class="form-control" id="content" name="content" autocomplete="off">
                 </div>
-                <input type="hidden" value="<?php echo $rand; ?>" name="randcheck" >
-                <input type="submit" name="addcomment" value="Komentiraj">
+
+                <input class="btn btn-primary" type="submit" name="addcomment" value="Comment">
 
             </form>
         </div>
