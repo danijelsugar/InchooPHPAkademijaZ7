@@ -187,7 +187,7 @@ class AdminController
     public function index()
     {
 
-        $posts = Post::all();
+        $posts = Post::all2();
         $view = new View();
         $view->render('index', [
             "posts" => $posts
@@ -335,7 +335,7 @@ class AdminController
         try {
             $db = Db::connect();
             $statement = $db->prepare("insert into reportcomment (userid,commentid,uniquereport) values 
-        (:userid,:commentid,:uniquereport)");
+            (:userid,:commentid,:uniquereport)");
             $statement->bindValue('commentid', $comment);
             $statement->bindValue('userid', Session::getInstance()->getUser()->id);
             $statement->bindValue(':uniquereport', $uniqueReport);
@@ -370,6 +370,21 @@ class AdminController
         $db = Db::connect();
         $statement = $db->prepare('delete from likes where id=:likeid');
         $statement->bindValue(':likeid', $likeid);
+        $statement->execute();
+
+        header('Location: ' . App::config('url'));
+    }
+
+    public function deleteComment($id)
+    {
+        $id = intval($id);
+        $db = Db::connect();
+        $statement = $db->prepare('delete from reportcomment where commentid=:id');
+        $statement->bindValue(':id', $id);
+        $statement->execute();
+
+        $statement = $db->prepare('delete from comment where id=:id');
+        $statement->bindValue(':id', $id);
         $statement->execute();
 
         header('Location: ' . App::config('url'));
