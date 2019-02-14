@@ -59,16 +59,11 @@ class Post
         return $this;
     }
 
-    public static function all()
+    public static function all($page)
     {
-        $page  = (isset($page)) ? (int) $page : 1;
-        $perPage = 10;
-        $start = $perPage * ($page - 1);
-        $total = self::postCount();
-        $totalPages = ceil($total / $perPage);
 
-        $next = $page + 1;
-        $prev = $page - 1;
+        $page  = (isset($page)) ? (int) $page : 1;
+        $start = 10 * ($page-1);
 
         $list = [];
         $db = Db::connect();
@@ -80,18 +75,69 @@ class Post
         left join likes c on a.id=c.post 
         where a.date > ADDDATE(now(), INTERVAL -7 DAY) 
         group by a.id, a.content, concat(b.firstname, ' ', b.lastname), a.date, a.hidden 
-        order by a.date desc limit 100");
+        order by a.date desc 
+        LIMIT $start, 10");
         $statement->execute();
         foreach ($statement->fetchAll() as $post) {
 
-            $statement = $db->prepare("select a.id, a.content, concat(b.firstname, ' ', b.lastname) as user, a.date, count(c.commentid) as reports 
-            from comment a 
-            inner join user b 
-            on a.user=b.id 
-            left join reportcomment c 
-            on a.id=c.commentid
-            where a.post=:id
-            group by a.id, a.content, user, a.date ");
+            $statement = $db->prepare("select a.id, a.content, concat(b.firstname, ' ', b.lastname) as user, a.date from comment a 
+            inner join user b on a.user=b.id 
+            where a.post=:id 
+            order by a.date desc 
+            LIMIT 10");
+            $statement->bindValue('id', $post->id);
+            $statement->execute();
+            $comments = $statement->fetchAll();
+
+            $statement = $db->prepare('select a.post, b.name from tagpost a inner join tag b on a.tag=b.id where a.post=:id');
+            $statement->bindValue('id', $post->id);
+            $statement->execute();
+            $tags = $statement->fetchAll();
+
+            $statement = $db->prepare('select count(postid) from report where postid=:id');
+            $statement->bindValue(':id', $post->id);
+            $statement->execute();
+            $reports = $statement->fetchColumn();
+
+
+
+
+
+            $list[] = new Post($post->id, $post->content, $post->user,$post->date, $post->hidden, $post->likes,$comments,$tags,$reports, $post->userid);
+
+
+
+        }
+
+        return $list;
+    }
+
+    public static function all2()
+    {
+
+        $page  = (isset($page)) ? (int) $page : 1;
+        $start = 10 * ($page-1);
+
+        $list = [];
+        $db = Db::connect();
+        $statement = $db->prepare("select 
+        a.id, a.content, a.user as userid, concat(b.firstname, ' ', b.lastname) as user, a.date, a.hidden,  
+        count(c.id) as likes
+        from 
+        post a inner join user b on a.user=b.id 
+        left join likes c on a.id=c.post 
+        where a.date > ADDDATE(now(), INTERVAL -7 DAY) 
+        group by a.id, a.content, concat(b.firstname, ' ', b.lastname), a.date, a.hidden 
+        order by a.date desc 
+        LIMIT $start, 10");
+        $statement->execute();
+        foreach ($statement->fetchAll() as $post) {
+
+            $statement = $db->prepare("select a.id, a.content, concat(b.firstname, ' ', b.lastname) as user, a.date from comment a 
+            inner join user b on a.user=b.id 
+            where a.post=:id 
+            order by a.date desc 
+            LIMIT 10");
             $statement->bindValue('id', $post->id);
             $statement->execute();
             $comments = $statement->fetchAll();
@@ -128,12 +174,20 @@ class Post
         from 
         post a inner join user b on a.user=b.id 
         left join likes c on a.id=c.post 
-         where a.id=:id");
+        where a.id=:id");
         $statement->bindValue('id', $id);
         $statement->execute();
         $post = $statement->fetch();
 
-        $statement = $db->prepare("select a.id, a.content, concat(b.firstname, ' ', b.lastname) as user, a.date from comment a inner join user b on a.user=b.id where a.post=:id ");
+        $statement = $db->prepare("select a.id, a.content, concat(b.firstname, ' ', b.lastname) as user, a.date, count(c.commentid) as reports 
+        from comment a 
+        inner join user b 
+        on a.user=b.id 
+        left join reportcomment c 
+        on a.id=c.commentid
+        where a.post=:id
+        group by a.id, a.content, user, a.date 
+        order by a.date desc");
         $statement->bindValue('id', $id);
         $statement->execute();
         $comments = $statement->fetchAll();
